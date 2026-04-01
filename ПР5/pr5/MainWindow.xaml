@@ -1,0 +1,47 @@
+﻿<Window x:Class="pr5.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Регистрация пользователей" Height="500" Width="600"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Логин -->
+        <Label Grid.Row="0" Grid.Column="0" Content="Логин:" VerticalAlignment="Center"/>
+        <TextBox x:Name="txtLogin" Grid.Row="0" Grid.Column="1" Margin="5" Height="25"/>
+
+        <!-- Пароль -->
+        <Label Grid.Row="1" Grid.Column="0" Content="Пароль:" VerticalAlignment="Center"/>
+        <PasswordBox x:Name="txtPassword" Grid.Row="1" Grid.Column="1" Margin="5" Height="25"/>
+
+        <!-- Роль -->
+        <Label Grid.Row="2" Grid.Column="0" Content="Роль:" VerticalAlignment="Center"/>
+        <ComboBox x:Name="cmbRole" Grid.Row="2" Grid.Column="1" Margin="5" Height="25">
+            <ComboBoxItem Content="User" IsSelected="True"/>
+            <ComboBoxItem Content="Admin"/>
+        </ComboBox>
+
+        <!-- Кнопки -->
+        <Button x:Name="btnRegister" Grid.Row="3" Grid.Column="0" Content="Зарегистрировать" 
+                Margin="5" Height="30" Click="btnRegister_Click"/>
+        <Button x:Name="btnShowAll" Grid.Row="3" Grid.Column="1" Content="Показать всех" 
+                Margin="5" Height="30" Click="btnShowAll_Click"/>
+
+        <!-- Таблица пользователей -->
+        <DataGrid x:Name="dgvUsers" Grid.Row="4" Grid.ColumnSpan="3" Margin="5" 
+                  AutoGenerateColumns="True" IsReadOnly="True"/>
+    </Grid>
+</Window>

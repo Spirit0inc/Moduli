@@ -1,0 +1,18 @@
+echo "# Visual Studio files
+.vs/
+bin/
+obj/
+packages/
+*.user
+*.suo
+*.cache
+*.tmp
+*.log
+
+# Entity Framework
+*.edmx.diagram
+*.edmx
+
+# Windows
+Thumbs.db
+Desktop.ini" > .gitignore

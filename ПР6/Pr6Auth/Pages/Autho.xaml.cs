@@ -1,0 +1,107 @@
+﻿using System;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using Pr6Auth.Services;
+using Pr6Auth.Model;
+
+namespace Pr6Auth.Pages
+{
+    public partial class Autho : Page
+    {
+        private int attemptCount = 0;
+        private string currentCaptcha = "";
+
+        public Autho()
+        {
+            InitializeComponent();
+            HideCaptcha();
+        }
+
+        private void HideCaptcha()
+        {
+            tblCaptcha.Visibility = Visibility.Collapsed;
+            tbCaptcha.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowCaptcha()
+        {
+            currentCaptcha = CaptchaGenerator.GenerateCaptchaText(6);
+            tblCaptcha.Text = $"Введите: {currentCaptcha}";
+            tblCaptcha.Visibility = Visibility.Visible;
+            tbCaptcha.Visibility = Visibility.Visible;
+            tbCaptcha.Text = "";
+        }
+
+        private void ClearAll()
+        {
+            tbLogin.Text = "";
+            pbPassword.Password = "";
+            tbCaptcha.Text = "";
+        }
+
+        private void BtnGuestClick(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new Client("Гость", "Гость"));
+        }
+
+        private void BtnLoginClick(object sender, RoutedEventArgs e)
+        {
+            string login = tbLogin.Text.Trim();
+            string password = pbPassword.Password;
+
+            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
+            {
+                MessageBox.Show("Введите логин и пароль!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            attemptCount++;
+            string hashedPassword = Hash.HashPassword(password);
+
+            try
+            {
+                using (var db = new pr5DBEntities1())
+                {
+                    var user = db.Users.FirstOrDefault(u => u.Login == login && u.PasswordHash == hashedPassword);
+
+                    if (user != null)
+                    {
+                        MessageBox.Show($"Добро пожаловать, {user.Login}!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        string roleLower = user.Role.ToLower();
+                        if (roleLower == "admin" || roleLower == "администратор")
+                        {
+                            NavigationService.Navigate(new AdminPage(user.Login, user.Role));
+                        }
+                        else
+                        {
+                            NavigationService.Navigate(new Client(user.Login, user.Role));
+                        }
+                    }
+                    else
+                    {
+                        if (attemptCount >= 2)
+                        {
+                            ShowCaptcha();
+                            if (attemptCount > 2 && tbCaptcha.Text != currentCaptcha)
+                            {
+                                MessageBox.Show("Неверная капча!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                                ClearAll();
+                                ShowCaptcha();
+                                return;
+                            }
+                        }
+                        MessageBox.Show("Неверный логин или пароль!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        ClearAll();
+                        pbPassword.Focus();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка подключения к БД: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+}
