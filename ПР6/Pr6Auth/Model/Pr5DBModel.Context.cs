@@ -30,5 +30,6 @@ namespace Pr6Auth.Model
         public DbSet<Customers> Customers { get; set; }
         public DbSet<Flights> Flights { get; set; }
         public DbSet<Tickets> Tickets { get; set; }
+        public DbSet<Employees> Employees { get; set; }
     }
 }

@@ -14,6 +14,11 @@ namespace Pr6Auth.Pages
             tbWelcome.Text = greeting;
         }
 
+        private void BtnManageEmployees_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new EmployeesList());
+        }
+
         private void BtnLogoutClick(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new Autho());

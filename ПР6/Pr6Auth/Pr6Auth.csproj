@@ -68,7 +68,16 @@
     <Compile Include="Model\Customers.cs">
       <DependentUpon>Pr5DBModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Model\Employees.cs">
+      <DependentUpon>Pr5DBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\EmployeesMetadata.cs.cs" />
     <Compile Include="Model\Flights.cs">
+      <DependentUpon>Pr5DBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Pr5DBModel1.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
       <DependentUpon>Pr5DBModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Model\Tickets.cs">
@@ -76,6 +85,12 @@
     </Compile>
     <Compile Include="Pages\AdminPage.xaml.cs">
       <DependentUpon>AdminPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\EmployeeEdit.xaml.cs">
+      <DependentUpon>EmployeeEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\EmployeesList.xaml.cs">
+      <DependentUpon>EmployeesList.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Register.xaml.cs">
       <DependentUpon>Register.xaml</DependentUpon>
@@ -131,6 +146,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\EmployeeEdit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\EmployeesList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\Register.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -182,7 +205,7 @@
     <Content Include="Model\Pr5DBModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>Pr5DBModel.edmx</DependentUpon>
-      <LastGenOutput>Pr5DBModel.cs</LastGenOutput>
+      <LastGenOutput>Pr5DBModel1.cs</LastGenOutput>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,0 +1,51 @@
+﻿<Page x:Class="Pr6Auth.Pages.EmployeesList"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Сотрудники" 
+      Background="White">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Панель инструментов -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="← Назад" Click="BackButton_Click" Margin="5" Width="80"/>
+            <TextBlock Text="Поиск по ФИО:" VerticalAlignment="Center" Margin="5"/>
+            <TextBox x:Name="tbSearch" Width="200" Margin="5" TextChanged="tbSearch_TextChanged"/>
+            <TextBlock Text="Фильтр по должности:" VerticalAlignment="Center" Margin="5,5,0,5"/>
+            <ComboBox x:Name="cbPositionFilter" Width="150" Margin="5" SelectionChanged="cbPositionFilter_SelectionChanged"/>
+            <Button Content="Сбросить фильтры" Click="ResetFilters_Click" Margin="10,5,5,5" Width="120"/>
+            <Button Content="Добавить сотрудника" Click="AddEmployee_Click" Margin="10,5,5,5" Width="150"/>
+        </StackPanel>
+
+        <!-- DataGrid -->
+        <DataGrid x:Name="dgEmployees" Grid.Row="1" AutoGenerateColumns="False" 
+                  IsReadOnly="True" SelectionMode="Single" 
+                  MouseDoubleClick="dgEmployees_MouseDoubleClick"
+                  Margin="0,5,0,0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Фамилия" Binding="{Binding LastName}" Width="*"/>
+                <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}" Width="*"/>
+                <DataGridTextColumn Header="Отчество" Binding="{Binding MiddleName}" Width="*"/>
+                <DataGridTextColumn Header="Должность" Binding="{Binding Position}" Width="*"/>
+                <DataGridTemplateColumn Header="Фото" Width="60">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Source="/Images/default_avatar.png" Width="40" Height="40" Stretch="Uniform"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Действия" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Редактировать" Click="EditEmployee_Click" Tag="{Binding Id}" Width="80"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Page>
