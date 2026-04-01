@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Pr6Auth.Services;
 using Pr6Auth.Model;
+using Pr6Auth.Services;
 
 namespace Pr6Auth.Pages
 {
@@ -40,11 +40,19 @@ namespace Pr6Auth.Pages
             tbCaptcha.Text = "";
         }
 
+        // Кнопка "Гость"
         private void BtnGuestClick(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new Client("Гость", "Гость"));
         }
 
+        // Кнопка "Регистрация" (новая)
+        private void BtnRegisterClick(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new Register());
+        }
+
+        // Кнопка "Войти"
         private void BtnLoginClick(object sender, RoutedEventArgs e)
         {
             string login = tbLogin.Text.Trim();
