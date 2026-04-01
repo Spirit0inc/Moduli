@@ -37,6 +37,21 @@
                          Height="30" 
                          Margin="0,5,0,10"/>
 
+            <TextBlock Text="Фамилия"/>
+            <TextBox x:Name="tbLastName" 
+                     Height="30" 
+                     Margin="0,5,0,10"/>
+
+            <TextBlock Text="Имя"/>
+            <TextBox x:Name="tbFirstName" 
+                     Height="30" 
+                     Margin="0,5,0,10"/>
+
+            <TextBlock Text="Отчество (необязательно)"/>
+            <TextBox x:Name="tbMiddleName" 
+                     Height="30" 
+                     Margin="0,5,0,10"/>
+
             <TextBlock Text="Роль"/>
             <ComboBox x:Name="cbRole" 
                       Height="30" 

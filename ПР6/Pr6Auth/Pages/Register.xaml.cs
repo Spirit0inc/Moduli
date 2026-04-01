@@ -16,30 +16,35 @@ namespace Pr6Auth.Pages
 
         private void BtnRegisterClick(object sender, RoutedEventArgs e)
         {
+            string lastName = tbLastName.Text.Trim();
+            string firstName = tbFirstName.Text.Trim();
+            string middleName = tbMiddleName.Text.Trim();
             string login = tbLogin.Text.Trim();
             string password = pbPassword.Password;
             string confirm = pbConfirmPassword.Password;
 
-            // Проверка полей
+            // Проверки
+            if (string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(firstName))
+            {
+                ShowError("Фамилия и имя обязательны!");
+                return;
+            }
             if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
             {
                 ShowError("Заполните все поля!");
                 return;
             }
-
             if (password != confirm)
             {
                 ShowError("Пароли не совпадают!");
                 return;
             }
-
             if (password.Length < 4)
             {
                 ShowError("Пароль должен быть не менее 4 символов!");
                 return;
             }
 
-            // Получаем выбранную роль
             ComboBoxItem selectedItem = cbRole.SelectedItem as ComboBoxItem;
             string role = (selectedItem.Tag as string) == "admin" ? "admin" : "user";
 
@@ -47,7 +52,6 @@ namespace Pr6Auth.Pages
             {
                 using (var db = new pr5DBEntities1())
                 {
-                    // Проверяем, существует ли уже такой логин
                     var existingUser = db.Users.FirstOrDefault(u => u.Login == login);
                     if (existingUser != null)
                     {
@@ -55,29 +59,31 @@ namespace Pr6Auth.Pages
                         return;
                     }
 
-                    // Хешируем пароль
                     string hashedPassword = Hash.HashPassword(password);
 
-                    // Создаём нового пользователя
                     var newUser = new Users
                     {
                         Login = login,
                         PasswordHash = hashedPassword,
-                        Role = role
+                        Role = role,
+                        LastName = lastName,
+                        FirstName = firstName,
+                        MiddleName = string.IsNullOrEmpty(middleName) ? null : middleName
                     };
 
                     db.Users.Add(newUser);
                     db.SaveChanges();
 
-                    MessageBox.Show($"Пользователь {login} успешно зарегистрирован!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"Пользователь {login} успешно зарегистрирован!",
+                                    "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    // Возвращаемся на страницу авторизации
                     NavigationService.Navigate(new Autho());
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при регистрации: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка при регистрации: {ex.Message}",
+                                "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

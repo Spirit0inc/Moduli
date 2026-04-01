@@ -1,21 +1,23 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using Pr6Auth.Model;
+using Pr6Auth.Services;
 
 namespace Pr6Auth.Pages
 {
     public partial class Client : Page
     {
-        public Client(string userName, string role)
+        public Client(Users user)
         {
             InitializeComponent();
-
-            if (userName == "Гость")
+            if (user != null)
             {
-                tbWelcome.Text = "Вы вошли как гость\nДоступ ограничен";
+                string greeting = TimeHelper.GetGreeting(user.LastName, user.FirstName, user.MiddleName);
+                tbWelcome.Text = greeting;
             }
             else
             {
-                tbWelcome.Text = $"Добро пожаловать, {userName}!\nВаша роль: {role}";
+                tbWelcome.Text = "Добро пожаловать, гость!";
             }
         }
 

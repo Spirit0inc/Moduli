@@ -12,14 +12,16 @@ namespace Pr6Auth.Model
     using System;
     using System.Collections.Generic;
     
-    public partial class Users
+    public partial class Tickets
     {
         public int Id { get; set; }
-        public string Login { get; set; }
-        public string PasswordHash { get; set; }
-        public string Role { get; set; }
-        public string LastName { get; set; }
-        public string FirstName { get; set; }
-        public string MiddleName { get; set; }
+        public int CustomerId { get; set; }
+        public int FlightId { get; set; }
+        public System.DateTime PurchaseDate { get; set; }
+        public decimal FinalPrice { get; set; }
+        public string Class { get; set; }
+    
+        public virtual Customers Customers { get; set; }
+        public virtual Flights Flights { get; set; }
     }
 }

@@ -12,14 +12,18 @@ namespace Pr6Auth.Model
     using System;
     using System.Collections.Generic;
     
-    public partial class Users
+    public partial class Aircraft
     {
+        public Aircraft()
+        {
+            this.Flights = new HashSet<Flights>();
+        }
+    
         public int Id { get; set; }
-        public string Login { get; set; }
-        public string PasswordHash { get; set; }
-        public string Role { get; set; }
-        public string LastName { get; set; }
-        public string FirstName { get; set; }
-        public string MiddleName { get; set; }
+        public string Model { get; set; }
+        public int Capacity { get; set; }
+        public string RegistrationNumber { get; set; }
+    
+        public virtual ICollection<Flights> Flights { get; set; }
     }
 }

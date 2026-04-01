@@ -40,19 +40,22 @@ namespace Pr6Auth.Pages
             tbCaptcha.Text = "";
         }
 
-        // Кнопка "Гость"
-        private void BtnGuestClick(object sender, RoutedEventArgs e)
+        private bool IsEmployeeRole(string role)
         {
-            NavigationService.Navigate(new Client("Гость", "Гость"));
+            string r = role.ToLower();
+            return r == "admin" || r == "manager" || r == "администратор" || r == "менеджер";
         }
 
-        // Кнопка "Регистрация" (новая)
+        private void BtnGuestClick(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new Client(null));
+        }
+
         private void BtnRegisterClick(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new Register());
         }
 
-        // Кнопка "Войти"
         private void BtnLoginClick(object sender, RoutedEventArgs e)
         {
             string login = tbLogin.Text.Trim();
@@ -75,16 +78,24 @@ namespace Pr6Auth.Pages
 
                     if (user != null)
                     {
+                        // Проверка рабочего времени для сотрудников
+                        if (IsEmployeeRole(user.Role) && !TimeHelper.IsWorkingTime(DateTime.Now))
+                        {
+                            MessageBox.Show("Доступ в систему разрешён только в рабочее время (10:00-19:00).",
+                                            "Доступ ограничен", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return; // прерываем вход
+                        }
+
                         MessageBox.Show($"Добро пожаловать, {user.Login}!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                        string roleLower = user.Role.ToLower();
-                        if (roleLower == "admin" || roleLower == "администратор")
+                        // Переход на страницу в зависимости от роли
+                        if (IsEmployeeRole(user.Role))
                         {
-                            NavigationService.Navigate(new AdminPage(user.Login, user.Role));
+                            NavigationService.Navigate(new AdminPage(user));
                         }
                         else
                         {
-                            NavigationService.Navigate(new Client(user.Login, user.Role));
+                            NavigationService.Navigate(new Client(user));
                         }
                     }
                     else
