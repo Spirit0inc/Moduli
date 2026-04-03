@@ -22,8 +22,9 @@ namespace Pr6Auth.Pages
             string login = tbLogin.Text.Trim();
             string password = pbPassword.Password;
             string confirm = pbConfirmPassword.Password;
+            string email = tbEmail.Text.Trim();
 
-            // Проверки
+            // Проверка обязательных полей
             if (string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(firstName))
             {
                 ShowError("Фамилия и имя обязательны!");
@@ -44,6 +45,11 @@ namespace Pr6Auth.Pages
                 ShowError("Пароль должен быть не менее 4 символов!");
                 return;
             }
+            if (string.IsNullOrEmpty(email))
+            {
+                ShowError("Email обязателен для восстановления пароля!");
+                return;
+            }
 
             ComboBoxItem selectedItem = cbRole.SelectedItem as ComboBoxItem;
             string role = (selectedItem.Tag as string) == "admin" ? "admin" : "user";
@@ -52,10 +58,19 @@ namespace Pr6Auth.Pages
             {
                 using (var db = new pr5DBEntities1())
                 {
+                    // Проверка уникальности логина
                     var existingUser = db.Users.FirstOrDefault(u => u.Login == login);
                     if (existingUser != null)
                     {
                         ShowError("Пользователь с таким логином уже существует!");
+                        return;
+                    }
+
+                    // Проверка уникальности email
+                    var existingEmail = db.Users.FirstOrDefault(u => u.Email == email);
+                    if (existingEmail != null)
+                    {
+                        ShowError("Пользователь с таким email уже существует!");
                         return;
                     }
 
@@ -68,7 +83,8 @@ namespace Pr6Auth.Pages
                         Role = role,
                         LastName = lastName,
                         FirstName = firstName,
-                        MiddleName = string.IsNullOrEmpty(middleName) ? null : middleName
+                        MiddleName = string.IsNullOrEmpty(middleName) ? null : middleName,
+                        Email = email
                     };
 
                     db.Users.Add(newUser);

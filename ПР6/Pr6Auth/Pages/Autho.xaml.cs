@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Pr6Auth.Model;
@@ -11,6 +12,11 @@ namespace Pr6Auth.Pages
     {
         private int attemptCount = 0;
         private string currentCaptcha = "";
+        private string resetCode = "";
+        private string resetUserEmail = "";
+        private Users resettingUser = null;
+        private string twoFACode = "";
+        private Users twoFAUser = null;
 
         public Autho()
         {
@@ -27,7 +33,7 @@ namespace Pr6Auth.Pages
         private void ShowCaptcha()
         {
             currentCaptcha = CaptchaGenerator.GenerateCaptchaText(6);
-            tblCaptcha.Text = $"Введите: {currentCaptcha}";
+            tblCaptcha.Text = $"Введите капчу: {currentCaptcha}";
             tblCaptcha.Visibility = Visibility.Visible;
             tbCaptcha.Visibility = Visibility.Visible;
             tbCaptcha.Text = "";
@@ -56,7 +62,110 @@ namespace Pr6Auth.Pages
             NavigationService.Navigate(new Register());
         }
 
-        private void BtnLoginClick(object sender, RoutedEventArgs e)
+        // ========== ВОССТАНОВЛЕНИЕ ПАРОЛЯ ==========
+        private async void BtnForgotPasswordClick(object sender, RoutedEventArgs e)
+        {
+            string loginOrEmail = tbLogin.Text.Trim();
+            if (string.IsNullOrEmpty(loginOrEmail))
+            {
+                MessageBox.Show("Введите логин или email для восстановления пароля.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            using (var db = new pr5DBEntities1())
+            {
+                var user = db.Users.FirstOrDefault(u => u.Login == loginOrEmail || u.Email == loginOrEmail);
+                if (user == null || string.IsNullOrEmpty(user.Email))
+                {
+                    MessageBox.Show("Пользователь не найден или у него не указан email.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                resetCode = new Random().Next(1000, 9999).ToString();
+                resetUserEmail = user.Email;
+                resettingUser = user;
+
+                var emailService = new EmailService();
+                bool sent = await emailService.SendCodeAsync(resetUserEmail, resetCode, "Восстановление пароля");
+
+                if (sent)
+                {
+                    MessageBox.Show($"Код отправлен на {resetUserEmail}", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    ShowResetCodeInput();
+                }
+            }
+        }
+
+        private void ShowResetCodeInput()
+        {
+            tbLogin.Visibility = Visibility.Collapsed;
+            pbPassword.Visibility = Visibility.Collapsed;
+            btnLogin.Visibility = Visibility.Collapsed;
+            btnGuest.Visibility = Visibility.Collapsed;
+            btnRegister.Visibility = Visibility.Collapsed;
+            btnForgotPassword.Visibility = Visibility.Collapsed;
+            tbl2FACode.Visibility = Visibility.Collapsed;
+            tb2FACode.Visibility = Visibility.Collapsed;
+            btnConfirm2FA.Visibility = Visibility.Collapsed;
+
+            tblCaptcha.Text = "Введите код из письма:";
+            tblCaptcha.Visibility = Visibility.Visible;
+            tbCaptcha.Visibility = Visibility.Visible;
+            tbCaptcha.Width = 150;
+            btnLogin.Visibility = Visibility.Visible;
+            btnLogin.Content = "Подтвердить код";
+            btnLogin.Click -= BtnLoginClick;
+            btnLogin.Click += BtnConfirmResetCodeClick;
+        }
+
+        private async void BtnConfirmResetCodeClick(object sender, RoutedEventArgs e)
+        {
+            if (tbCaptcha.Text == resetCode)
+            {
+                NavigationService.Navigate(new ResetPasswordPage(resettingUser));
+            }
+            else
+            {
+                MessageBox.Show("Неверный код подтверждения.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ========== ДВУХФАКТОРНАЯ АУТЕНТИФИКАЦИЯ ==========
+        private void Show2FAInput()
+        {
+            tbLogin.Visibility = Visibility.Collapsed;
+            pbPassword.Visibility = Visibility.Collapsed;
+            btnLogin.Visibility = Visibility.Collapsed;
+            btnGuest.Visibility = Visibility.Collapsed;
+            btnRegister.Visibility = Visibility.Collapsed;
+            btnForgotPassword.Visibility = Visibility.Collapsed;
+            tblCaptcha.Visibility = Visibility.Collapsed;
+            tbCaptcha.Visibility = Visibility.Collapsed;
+
+            tbl2FACode.Visibility = Visibility.Visible;
+            tb2FACode.Visibility = Visibility.Visible;
+            btnConfirm2FA.Visibility = Visibility.Visible;
+        }
+
+        private void BtnConfirm2FAClick(object sender, RoutedEventArgs e)
+        {
+            if (tb2FACode.Text == twoFACode)
+            {
+                MessageBox.Show($"Добро пожаловать, {twoFAUser.Login}!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (IsEmployeeRole(twoFAUser.Role))
+                    NavigationService.Navigate(new AdminPage(twoFAUser));
+                else
+                    NavigationService.Navigate(new Client(twoFAUser));
+            }
+            else
+            {
+                MessageBox.Show("Неверный код подтверждения!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                tb2FACode.Text = "";
+            }
+        }
+
+        // ========== ОСНОВНОЙ ВХОД (АСИНХРОННЫЙ) ==========
+        private async void BtnLoginClick(object sender, RoutedEventArgs e)
         {
             string login = tbLogin.Text.Trim();
             string password = pbPassword.Password;
@@ -70,56 +179,53 @@ namespace Pr6Auth.Pages
             attemptCount++;
             string hashedPassword = Hash.HashPassword(password);
 
-            try
+            using (var db = new pr5DBEntities1())
             {
-                using (var db = new pr5DBEntities1())
+                var user = db.Users.FirstOrDefault(u => u.Login == login && u.PasswordHash == hashedPassword);
+
+                if (user != null)
                 {
-                    var user = db.Users.FirstOrDefault(u => u.Login == login && u.PasswordHash == hashedPassword);
-
-                    if (user != null)
+                    if (!string.IsNullOrEmpty(user.Email))
                     {
-                        // Проверка рабочего времени для сотрудников
-                        if (IsEmployeeRole(user.Role) && !TimeHelper.IsWorkingTime(DateTime.Now))
-                        {
-                            MessageBox.Show("Доступ в систему разрешён только в рабочее время (10:00-19:00).",
-                                            "Доступ ограничен", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            return; // прерываем вход
-                        }
+                        twoFACode = new Random().Next(1000, 9999).ToString();
+                        twoFAUser = user;
 
-                        MessageBox.Show($"Добро пожаловать, {user.Login}!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                        var emailService = new EmailService();
+                        bool sent = await emailService.SendCodeAsync(user.Email, twoFACode, "Двухфакторная аутентификация");
 
-                        // Переход на страницу в зависимости от роли
-                        if (IsEmployeeRole(user.Role))
+                        if (sent)
                         {
-                            NavigationService.Navigate(new AdminPage(user));
-                        }
-                        else
-                        {
-                            NavigationService.Navigate(new Client(user));
+                            MessageBox.Show($"Код подтверждения отправлен на {user.Email}", "2FA", MessageBoxButton.OK, MessageBoxImage.Information);
+                            Show2FAInput();
+                            return;
                         }
                     }
                     else
                     {
-                        if (attemptCount >= 2)
-                        {
-                            ShowCaptcha();
-                            if (attemptCount > 2 && tbCaptcha.Text != currentCaptcha)
-                            {
-                                MessageBox.Show("Неверная капча!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                                ClearAll();
-                                ShowCaptcha();
-                                return;
-                            }
-                        }
-                        MessageBox.Show("Неверный логин или пароль!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                        ClearAll();
-                        pbPassword.Focus();
+                        MessageBox.Show($"Добро пожаловать, {user.Login}!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                        if (IsEmployeeRole(user.Role))
+                            NavigationService.Navigate(new AdminPage(user));
+                        else
+                            NavigationService.Navigate(new Client(user));
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка подключения к БД: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                else
+                {
+                    if (attemptCount >= 2)
+                    {
+                        ShowCaptcha();
+                        if (attemptCount > 2 && tbCaptcha.Text != currentCaptcha)
+                        {
+                            MessageBox.Show("Неверная капча!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            ClearAll();
+                            ShowCaptcha();
+                            return;
+                        }
+                    }
+                    MessageBox.Show("Неверный логин или пароль!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ClearAll();
+                    pbPassword.Focus();
+                }
             }
         }
     }

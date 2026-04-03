@@ -22,36 +22,49 @@
                        HorizontalAlignment="Center"
                        Margin="0,0,0,20"/>
 
+            <!-- Логин -->
             <TextBlock Text="Логин"/>
             <TextBox x:Name="tbLogin" 
                      Height="30" 
                      Margin="0,5,0,10"/>
 
+            <!-- Пароль -->
             <TextBlock Text="Пароль"/>
             <PasswordBox x:Name="pbPassword" 
                          Height="30" 
                          Margin="0,5,0,10"/>
 
+            <!-- Подтверждение пароля -->
             <TextBlock Text="Подтверждение пароля"/>
             <PasswordBox x:Name="pbConfirmPassword" 
                          Height="30" 
                          Margin="0,5,0,10"/>
 
+            <!-- Фамилия -->
             <TextBlock Text="Фамилия"/>
             <TextBox x:Name="tbLastName" 
                      Height="30" 
                      Margin="0,5,0,10"/>
 
+            <!-- Имя -->
             <TextBlock Text="Имя"/>
             <TextBox x:Name="tbFirstName" 
                      Height="30" 
                      Margin="0,5,0,10"/>
 
+            <!-- Отчество (необязательно) -->
             <TextBlock Text="Отчество (необязательно)"/>
             <TextBox x:Name="tbMiddleName" 
                      Height="30" 
                      Margin="0,5,0,10"/>
 
+            <!-- Email -->
+            <TextBlock Text="Email"/>
+            <TextBox x:Name="tbEmail" 
+                     Height="30" 
+                     Margin="0,5,0,10"/>
+
+            <!-- Роль -->
             <TextBlock Text="Роль"/>
             <ComboBox x:Name="cbRole" 
                       Height="30" 
@@ -61,6 +74,7 @@
                 <ComboBoxItem Content="Администратор" Tag="admin"/>
             </ComboBox>
 
+            <!-- Ошибка -->
             <TextBlock x:Name="tbError" 
                        Foreground="Red" 
                        FontSize="12"
@@ -68,6 +82,7 @@
                        Visibility="Collapsed"
                        TextWrapping="Wrap"/>
 
+            <!-- Кнопки -->
             <StackPanel Orientation="Horizontal" 
                         HorizontalAlignment="Center" 
                         Margin="0,20,0,0">
